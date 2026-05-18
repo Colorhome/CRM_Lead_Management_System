@@ -1,360 +1,1121 @@
-<!-- index.html -->
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <base target="_top">
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Lead Management System</title>
-
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #222636;
+      --border:    #2e3347;
+      --accent:    #4f7ef8;
+      --accent2:   #7c5cfc;
+      --green:     #22c55e;
+      --orange:    #f59e0b;
+      --red:       #ef4444;
+      --purple:    #a855f7;
+      --cyan:      #06b6d4;
+      --text:      #e8eaf0;
+      --muted:     #7b82a0;
+      --radius:    14px;
+      --font:      'Plus Jakarta Sans', sans-serif;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100vh; }
 
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:Arial, sans-serif;
+    /* ── LAYOUT ── */
+    .app { display:flex; height:100vh; overflow:hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width:240px; min-width:240px; background:var(--surface);
+      border-right:1px solid var(--border);
+      display:flex; flex-direction:column; padding:24px 0;
+    }
+    .logo {
+      padding:0 20px 24px;
+      border-bottom:1px solid var(--border);
+    }
+    .logo-icon {
+      width:40px; height:40px; border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px; margin-bottom:10px;
+    }
+    .logo-name { font-size:16px; font-weight:800; }
+    .logo-sub  { font-size:11px; color:var(--muted); }
+    .nav       { padding:16px 12px; flex:1; }
+    .nav-label { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; padding:0 8px; margin:16px 0 6px; }
+    .nav-item  {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border-radius:10px;
+      cursor:pointer; font-size:13.5px; font-weight:500;
+      color:var(--muted); transition:.15s; margin-bottom:2px;
+      position:relative;
+    }
+    .nav-item:hover { background:var(--surface2); color:var(--text); }
+    .nav-item.active { background:rgba(79,126,248,.15); color:var(--accent); }
+    .nav-item .badge {
+      margin-left:auto; background:var(--red);
+      color:#fff; border-radius:20px; font-size:10px;
+      font-weight:700; padding:1px 6px;
+    }
+    .sidebar-footer {
+      padding:16px 20px; border-top:1px solid var(--border);
+      font-size:11px; color:var(--muted);
     }
 
-    body{
-      background:#f3f4f6;
-      padding:20px;
+    /* ── MAIN ── */
+    .main    { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+    .topbar  {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 28px; height:64px; border-bottom:1px solid var(--border);
+      background:var(--surface); flex-shrink:0;
     }
-
-    .container{
-      max-width:1200px;
-      margin:auto;
+    .topbar-title { font-size:18px; font-weight:800; }
+    .topbar-sub   { font-size:12px; color:var(--muted); margin-top:2px; }
+    .topbar-actions { display:flex; gap:10px; align-items:center; }
+    .btn {
+      padding:9px 18px; border-radius:9px; border:none;
+      font-family:var(--font); font-size:13px; font-weight:600;
+      cursor:pointer; transition:.15s; display:flex; align-items:center; gap:6px;
     }
+    .btn-primary { background:var(--accent); color:#fff; }
+    .btn-primary:hover { background:#3d6ef0; }
+    .btn-ghost   { background:var(--surface2); color:var(--text); border:1px solid var(--border); }
+    .btn-ghost:hover   { border-color:var(--accent); color:var(--accent); }
+    .btn-sm      { padding:6px 12px; font-size:12px; border-radius:7px; }
+    .btn-danger  { background:rgba(239,68,68,.15); color:var(--red); border:1px solid rgba(239,68,68,.3); }
 
-    .header{
-      background:#2563eb;
-      color:white;
-      padding:20px;
-      border-radius:10px;
+    .content { flex:1; overflow-y:auto; padding:24px 28px; }
+
+    /* ── PAGE SECTIONS ── */
+    .page { display:none; }
+    .page.active { display:block; }
+
+    /* ── STAT CARDS ── */
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+    .stat-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:20px;
+      position:relative; overflow:hidden;
+    }
+    .stat-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    }
+    .stat-card.blue::before   { background:var(--accent); }
+    .stat-card.red::before    { background:var(--red); }
+    .stat-card.orange::before { background:var(--orange); }
+    .stat-card.green::before  { background:var(--green); }
+    .stat-label { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .stat-value { font-size:32px; font-weight:800; margin:8px 0 4px; }
+    .stat-value.blue   { color:var(--accent); }
+    .stat-value.red    { color:var(--red); }
+    .stat-value.orange { color:var(--orange); }
+    .stat-value.green  { color:var(--green); }
+    .stat-sub   { font-size:12px; color:var(--muted); }
+    .stat-icon  { position:absolute; top:20px; right:20px; font-size:28px; opacity:.3; }
+
+    /* ── CARDS ── */
+    .card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:22px;
       margin-bottom:20px;
     }
-
-    .header h1{
-      font-size:28px;
+    .card-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:18px;
     }
+    .card-title { font-size:15px; font-weight:700; }
+    .card-sub   { font-size:12px; color:var(--muted); margin-top:2px; }
 
-    .card{
-      background:white;
-      padding:20px;
-      border-radius:10px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.1);
-      margin-bottom:20px;
+    /* ── PIPELINE ── */
+    .pipeline-wrap {
+      display:flex; gap:12px; overflow-x:auto; padding-bottom:12px;
     }
+    .pipeline-wrap::-webkit-scrollbar { height:5px; }
+    .pipeline-wrap::-webkit-scrollbar-track { background:var(--surface2); }
+    .pipeline-wrap::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
 
-    .card h2{
-      margin-bottom:20px;
-      color:#111827;
+    .stage-col {
+      min-width:180px; max-width:180px;
+      background:var(--surface2); border-radius:10px;
+      padding:12px; flex-shrink:0;
     }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-      gap:15px;
+    .stage-header {
+      font-size:11px; font-weight:700; padding-bottom:8px;
+      border-bottom:2px solid; margin-bottom:10px;
+      display:flex; justify-content:space-between; align-items:center;
     }
-
-    input,
-    select,
-    textarea{
-      width:100%;
-      padding:12px;
-      border:1px solid #d1d5db;
-      border-radius:8px;
-      outline:none;
-      font-size:14px;
+    .stage-count {
+      background:var(--border); color:var(--muted);
+      border-radius:20px; font-size:10px; padding:1px 7px;
     }
-
-    textarea{
-      resize:none;
-      height:100px;
+    .lead-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:9px; padding:11px 12px; margin-bottom:8px;
+      cursor:pointer; transition:.15s;
     }
+    .lead-card:hover { border-color:var(--accent); }
+    .lead-card-name { font-size:13px; font-weight:600; margin-bottom:4px; }
+    .lead-card-phone { font-size:11px; color:var(--muted); }
+    .lead-card-loc   { font-size:11px; color:var(--muted); }
+    .lead-card-req   { font-size:11px; color:var(--muted); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .no-leads { font-size:12px; color:var(--muted); text-align:center; padding:16px 0; }
 
-    button{
-      background:#2563eb;
-      color:white;
-      border:none;
-      padding:12px 20px;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:15px;
-      margin-top:10px;
+    /* ── TABLE ── */
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th {
+      background:var(--surface2); padding:11px 14px;
+      text-align:left; font-weight:600; font-size:11px;
+      text-transform:uppercase; letter-spacing:.07em; color:var(--muted);
+      border-bottom:1px solid var(--border);
     }
-
-    button:hover{
-      background:#1d4ed8;
+    td { padding:11px 14px; border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(255,255,255,.02); }
+    .badge-status {
+      display:inline-flex; align-items:center; gap:4px;
+      padding:3px 8px; border-radius:20px; font-size:11px; font-weight:600;
     }
+    .badge-active   { background:rgba(34,197,94,.15);  color:var(--green); }
+    .badge-pending  { background:rgba(245,158,11,.15); color:var(--orange); }
+    .badge-done     { background:rgba(79,126,248,.15); color:var(--accent); }
+    .badge-overdue  { background:rgba(239,68,68,.15);  color:var(--red); }
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:20px;
+    /* ── FORM ── */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-group { display:flex; flex-direction:column; gap:6px; }
+    .form-group.full { grid-column:1/-1; }
+    label { font-size:12px; font-weight:600; color:var(--muted); }
+    input, select, textarea {
+      background:var(--surface2); border:1px solid var(--border);
+      color:var(--text); padding:10px 13px; border-radius:9px;
+      font-family:var(--font); font-size:13px; outline:none; transition:.15s;
     }
+    input:focus, select:focus, textarea:focus { border-color:var(--accent); }
+    select option { background:var(--surface2); }
+    textarea { resize:vertical; min-height:80px; }
 
-    table th{
-      background:#2563eb;
-      color:white;
-      padding:12px;
-      font-size:14px;
+    /* ── AGING BARS ── */
+    .aging-row { display:flex; align-items:center; gap:14px; padding:10px 0; border-bottom:1px solid var(--border); }
+    .aging-label { min-width:110px; font-size:13px; color:var(--muted); }
+    .aging-bar-wrap { flex:1; background:var(--surface2); border-radius:20px; height:8px; overflow:hidden; }
+    .aging-bar { height:100%; border-radius:20px; transition:.5s; }
+    .aging-val { min-width:50px; text-align:right; font-size:13px; font-weight:600; }
+
+    /* ── SOURCE CHART ── */
+    .source-list { display:flex; flex-direction:column; gap:10px; }
+    .source-row  { display:flex; align-items:center; gap:12px; }
+    .source-dot  { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .source-name { flex:1; font-size:13px; }
+    .source-bar-wrap { width:120px; background:var(--surface2); border-radius:20px; height:6px; }
+    .source-bar  { height:100%; border-radius:20px; }
+    .source-cnt  { min-width:30px; text-align:right; font-size:13px; font-weight:600; color:var(--muted); }
+
+    /* ── QUICK ACTIONS ── */
+    .quick-actions { display:flex; flex-direction:column; gap:8px; }
+    .quick-btn {
+      display:flex; align-items:center; gap:10px;
+      padding:12px 14px; border-radius:10px; border:1px solid var(--border);
+      background:var(--surface2); cursor:pointer; font-size:13px;
+      font-weight:500; color:var(--text); transition:.15s;
     }
+    .quick-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .quick-btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .quick-btn.primary:hover { background:#3d6ef0; }
 
-    table td{
-      padding:10px;
-      border:1px solid #e5e7eb;
-      font-size:13px;
+    /* ── MODAL ── */
+    .modal-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.6); z-index:100;
+      align-items:center; justify-content:center;
     }
-
-    .loading{
-      display:none;
-      margin-top:10px;
-      color:#2563eb;
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:16px; padding:28px; width:100%; max-width:560px;
+      max-height:90vh; overflow-y:auto;
     }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .modal-title  { font-size:16px; font-weight:800; }
+    .close-btn    { background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; }
+    .close-btn:hover { color:var(--text); }
 
-    @media(max-width:768px){
-
-      .grid{
-        grid-template-columns:1fr;
-      }
-
-      table{
-        display:block;
-        overflow:auto;
-      }
-
+    /* ── TOAST ── */
+    #toast {
+      position:fixed; bottom:24px; right:24px; z-index:999;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:10px; padding:14px 18px;
+      font-size:13px; font-weight:600;
+      box-shadow:0 8px 24px rgba(0,0,0,.4);
+      transform:translateY(80px); opacity:0;
+      transition:.3s; pointer-events:none;
     }
+    #toast.show { transform:translateY(0); opacity:1; }
+    #toast.success { border-color:var(--green); color:var(--green); }
+    #toast.error   { border-color:var(--red);   color:var(--red); }
 
+    /* ── LOADING ── */
+    .spinner {
+      display:inline-block; width:16px; height:16px;
+      border:2px solid var(--border); border-top-color:var(--accent);
+      border-radius:50%; animation:spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px) {
+      .sidebar { display:none; }
+      .stats-row { grid-template-columns:repeat(2,1fr); }
+    }
   </style>
-
 </head>
-
 <body>
 
-<div class="container">
+<!-- CONFIG: Replace with your deployed Apps Script Web App URL -->
+<script>
+  // ⚠️ IMPORTANT: Yahan apna Google Apps Script Web App URL paste karein
+  // Deploy > New Deployment > Web App > Execute as: Me, Access: Anyone
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxh-kxzJosF-OLrdfADH-tAGUeaXGj_MomGz3Ze0qsanKLnfd010SyqdosMaQ0P-e_i/exec';
+</script>
 
-  <div class="header">
-    <h1>Lead Management System</h1>
-  </div>
+<div class="app">
 
-  <!-- Lead Form -->
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">📋</div>
+      <div class="logo-name">LeadTrack</div>
+      <div class="logo-sub">Lead Management System</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <span>📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('today')" id="navToday">
+        <span>📞</span> Today's Calling
+        <span class="badge" id="todayBadge" style="display:none">0</span>
+      </div>
 
-  <div class="card">
+      <div class="nav-label">Leads</div>
+      <div class="nav-item" onclick="showPage('pipeline')">
+        <span>🏆</span> Sales Pipeline
+      </div>
+      <div class="nav-item" onclick="showPage('leads')">
+        <span>👥</span> Active Leads
+      </div>
+      <div class="nav-item" onclick="showPage('addlead')">
+        <span>➕</span> Add New Lead
+      </div>
 
-    <h2>Add New Lead</h2>
+      <div class="nav-label">History</div>
+      <div class="nav-item" onclick="showPage('calllog')">
+        <span>📝</span> Log a Call
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      LeadTrack v2.0 · 2026
+    </div>
+  </aside>
 
-    <form id="leadForm">
+  <!-- MAIN -->
+  <div class="main">
 
-      <div class="grid">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="pageTitle">Dashboard</div>
+        <div class="topbar-sub" id="pageSub">Overview & Analytics</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="refreshAll()">🔄 Refresh</button>
+        <button class="btn btn-primary" onclick="showPage('addlead')">+ Add Lead</button>
+      </div>
+    </div>
 
-        <div>
-          <label>Date</label>
-          <input type="date" id="date" required>
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ========== DASHBOARD PAGE ========== -->
+      <div class="page active" id="page-dashboard">
+
+        <div class="stats-row">
+          <div class="stat-card blue">
+            <div class="stat-label">Active Leads</div>
+            <div class="stat-value blue" id="statActive">—</div>
+            <div class="stat-sub">Total in pipeline</div>
+            <div class="stat-icon">👥</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-label">Today Follow Ups</div>
+            <div class="stat-value orange" id="statToday">—</div>
+            <div class="stat-sub">Scheduled for today</div>
+            <div class="stat-icon">📅</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Qualified Leads</div>
+            <div class="stat-value green" id="statQual">—</div>
+            <div class="stat-sub">Marked as qualified</div>
+            <div class="stat-icon">✅</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label">Overdue Follow Ups</div>
+            <div class="stat-value red" id="statOverdue">—</div>
+            <div class="stat-sub">Past follow-up date</div>
+            <div class="stat-icon">⚠️</div>
+          </div>
         </div>
 
-        <div>
-          <label>Inquiry Source</label>
-          <input type="text" id="inquirySource" placeholder="Facebook / Website / Call">
-        </div>
+        <div style="display:grid; grid-template-columns:1fr 340px; gap:20px;">
 
-        <div>
-          <label>Name</label>
-          <input type="text" id="name" required>
-        </div>
+          <!-- Aging / Source Analysis -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Source Breakdown</div>
+                  <div class="card-sub">Leads by inquiry source</div>
+                </div>
+              </div>
+              <div class="source-list" id="sourceList">
+                <div style="color:var(--muted);font-size:13px;">Loading...</div>
+              </div>
+            </div>
 
-        <div>
-          <label>Location</label>
-          <input type="text" id="location">
-        </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Pipeline Stage Distribution</div>
+                  <div class="card-sub">Leads by sales stage</div>
+                </div>
+              </div>
+              <div id="stageDistribution">
+                <div style="color:var(--muted);font-size:13px;">Loading...</div>
+              </div>
+            </div>
+          </div>
 
-        <div>
-          <label>Phone No</label>
-          <input type="text" id="phone">
-        </div>
+          <!-- Quick Actions -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Quick Actions</div>
+              </div>
+              <div class="quick-actions">
+                <div class="quick-btn primary" onclick="showPage('today')">
+                  📞 Start Today's Calling
+                </div>
+                <div class="quick-btn" onclick="showPage('addlead')">
+                  ➕ Add New Lead
+                </div>
+                <div class="quick-btn" onclick="showPage('pipeline')">
+                  🏆 View Sales Pipeline
+                </div>
+                <div class="quick-btn" onclick="showPage('leads')">
+                  👥 View All Active Leads
+                </div>
+                <div class="quick-btn" onclick="refreshAll()">
+                  🔄 Refresh Dashboard
+                </div>
+              </div>
+            </div>
 
-        <div>
-          <label>Email ID</label>
-          <input type="email" id="email">
-        </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Today's Stats</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;">
+                  <span style="color:var(--muted)">Calls Logged Today</span>
+                  <span style="font-weight:700;color:var(--accent)" id="statTodayCalls">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;">
+                  <span style="color:var(--muted)">Converted</span>
+                  <span style="font-weight:700;color:var(--green)" id="statConverted">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <div>
-          <label>Area</label>
-          <input type="text" id="area">
         </div>
+      </div>
 
-        <div>
-          <label>Qualified</label>
-          <select id="qualified">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
+      <!-- ========== SALES PIPELINE PAGE ========== -->
+      <div class="page" id="page-pipeline">
+        <div style="margin-bottom:16px;color:var(--muted);font-size:13px;">
+          Track every lead through your sales process
+        </div>
+        <div class="pipeline-wrap" id="pipelineBoard">
+          <div style="color:var(--muted);padding:40px 20px;font-size:13px;">Loading pipeline...</div>
+        </div>
+      </div>
+
+      <!-- ========== ACTIVE LEADS PAGE ========== -->
+      <div class="page" id="page-leads">
+        <div class="card" style="padding:16px 22px;margin-bottom:16px;display:flex;gap:12px;align-items:center;">
+          <input type="text" id="searchBox" placeholder="🔍 Search by name, phone, location..." style="flex:1;" oninput="filterLeads()">
+          <select id="filterStatus" onchange="filterLeads()" style="width:160px;">
+            <option value="">All Status</option>
+            <option>Active</option>
+            <option>Interested</option>
+            <option>Not Interested</option>
+            <option>Call Back</option>
           </select>
         </div>
-
-      </div>
-
-      <br>
-
-      <div>
-        <label>Requirement</label>
-        <textarea id="requirement"></textarea>
-      </div>
-
-      <br>
-
-      <div>
-        <label>Last Remarks</label>
-        <textarea id="lastRemarks"></textarea>
-      </div>
-
-      <br>
-
-      <div class="grid">
-
-        <div>
-          <label>Follow Update</label>
-          <input type="date" id="followUpdate">
+        <div class="card" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Location</th>
+                  <th>Source</th>
+                  <th>Requirement</th>
+                  <th>Follow Up</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leadsTableBody">
+                <tr><td colspan="10" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-
       </div>
 
-      <button type="submit">Save Lead</button>
-
-      <div class="loading" id="loading">
-        Saving Lead...
+      <!-- ========== ADD LEAD PAGE ========== -->
+      <div class="page" id="page-addlead">
+        <div class="card" style="max-width:760px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">New Lead</div>
+              <div class="card-sub">Fill in the lead details</div>
+            </div>
+          </div>
+          <form id="leadForm" onsubmit="submitLead(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Date *</label>
+                <input type="date" id="ld-date" required>
+              </div>
+              <div class="form-group">
+                <label>Inquiry Source</label>
+                <input type="text" id="ld-source" placeholder="Facebook / Website / Call / Reference">
+              </div>
+              <div class="form-group">
+                <label>Name *</label>
+                <input type="text" id="ld-name" placeholder="Customer Name" required>
+              </div>
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="ld-location" placeholder="City / Area">
+              </div>
+              <div class="form-group">
+                <label>Phone No</label>
+                <input type="text" id="ld-phone" placeholder="10-digit mobile number">
+              </div>
+              <div class="form-group">
+                <label>Email ID</label>
+                <input type="email" id="ld-email" placeholder="email@example.com">
+              </div>
+              <div class="form-group">
+                <label>Area</label>
+                <input type="text" id="ld-area" placeholder="Specific area / sector">
+              </div>
+              <div class="form-group">
+                <label>Qualified?</label>
+                <select id="ld-qualified">
+                  <option value="Yes">✅ Yes</option>
+                  <option value="No">❌ No</option>
+                  <option value="Maybe">🤔 Maybe</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label>Requirement</label>
+                <textarea id="ld-requirement" placeholder="What is the customer looking for?"></textarea>
+              </div>
+              <div class="form-group full">
+                <label>Last Remarks</label>
+                <textarea id="ld-remarks" placeholder="Call notes or initial conversation summary"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Follow Up Date</label>
+                <input type="date" id="ld-followup">
+              </div>
+            </div>
+            <div style="margin-top:20px;display:flex;gap:10px;">
+              <button type="submit" class="btn btn-primary" id="submitLeadBtn">
+                Save Lead
+              </button>
+              <button type="button" class="btn btn-ghost" onclick="document.getElementById('leadForm').reset()">
+                Clear
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
-    </form>
+      <!-- ========== TODAY'S CALLING PAGE ========== -->
+      <div class="page" id="page-today">
+        <div class="card" style="padding:0;">
+          <div class="card-header" style="padding:18px 22px;border-bottom:1px solid var(--border);">
+            <div>
+              <div class="card-title">Today's Follow Ups</div>
+              <div class="card-sub" id="todayDate"></div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Follow Up Time</th>
+                  <th>Last Remarks</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="todayTableBody">
+                <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
+      <!-- ========== LOG CALL PAGE ========== -->
+      <div class="page" id="page-calllog">
+        <div class="card" style="max-width:560px;">
+          <div class="card-header">
+            <div class="card-title">Log a Call</div>
+          </div>
+          <form id="callLogForm" onsubmit="submitCallLog(event)">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label>Unique Code *</label>
+                <input type="text" id="cl-code" placeholder="LD-XXXXXX-XXXX" required>
+              </div>
+              <div class="form-group">
+                <label>Call Status *</label>
+                <select id="cl-status">
+                  <option>Interested</option>
+                  <option>Not Interested</option>
+                  <option>Call Back</option>
+                  <option>No Answer</option>
+                  <option>Busy</option>
+                  <option>Converted</option>
+                  <option>Follow Up</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Executive Name</label>
+                <input type="text" id="cl-exec" placeholder="Your name">
+              </div>
+              <div class="form-group full">
+                <label>Call Notes *</label>
+                <textarea id="cl-notes" placeholder="What was discussed?"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Next Follow Up Date</label>
+                <input type="date" id="cl-followup">
+              </div>
+            </div>
+            <div style="margin-top:20px;">
+              <button type="submit" class="btn btn-primary">💾 Save Call Log</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODAL: Stage Update -->
+<div class="modal-overlay" id="stageModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Update Sales Stage</div>
+      <button class="close-btn" onclick="closeModal('stageModal')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Lead Code</label>
+        <input type="text" id="sm-code" readonly style="opacity:.6;">
+      </div>
+      <div class="form-group full">
+        <label>Move to Stage</label>
+        <select id="sm-stage">
+          <option>New Lead</option>
+          <option>Follow Up</option>
+          <option>First Contact</option>
+          <option>Qualified</option>
+          <option>Meeting with Client</option>
+          <option>Follow Up 2</option>
+          <option>Quote Sent</option>
+          <option>Follow Up 3</option>
+          <option>Demonstration</option>
+          <option>Negotiation</option>
+          <option>Converted</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Remarks</label>
+        <textarea id="sm-remarks" placeholder="Notes about this stage..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Deal Value (₹)</label>
+        <input type="number" id="sm-deal" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Expected Closing Date</label>
+        <input type="date" id="sm-close">
+      </div>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:10px;">
+      <button class="btn btn-primary" onclick="saveSalesStage()">Update Stage</button>
+      <button class="btn btn-ghost" onclick="closeModal('stageModal')">Cancel</button>
+    </div>
   </div>
-
-  <!-- Lead Table -->
-
-  <div class="card">
-
-    <h2>Active Leads</h2>
-
-    <table id="leadTable">
-
-      <thead>
-
-        <tr>
-          <th>Code</th>
-          <th>Date</th>
-          <th>Name</th>
-          <th>Phone</th>
-          <th>Location</th>
-          <th>Requirement</th>
-          <th>Status</th>
-        </tr>
-
-      </thead>
-
-      <tbody id="tableBody">
-
-      </tbody>
-
-    </table>
-
-  </div>
-
 </div>
 
+<!-- TOAST -->
+<div id="toast"></div>
+
 <script>
+// ============================================================
+// CONFIG
+// ============================================================
+// Set above as APPS_SCRIPT_URL
 
-  // Load Leads
+// ============================================================
+// STATE
+// ============================================================
+let allLeads      = [];
+let pipelineData  = {};
+let pipelineStages = [];
 
-  function loadLeads(){
+// ============================================================
+// API CALL
+// ============================================================
+async function apiCall(action, body = {}) {
+  const payload = { action, ...body };
+  const url = `${APPS_SCRIPT_URL}?action=${action}`;
 
-    google.script.run
-      .withSuccessHandler(function(data){
+  // Try POST first (for writes), GET for reads
+  const isRead = ['getActiveLeads','getDashboard','getSalesPipeline','getTodayCalling','getCallLogs'].includes(action);
 
-        const tbody = document.getElementById('tableBody');
+  try {
+    let response;
+    if (isRead) {
+      response = await fetch(`${APPS_SCRIPT_URL}?action=${action}&${new URLSearchParams(body)}`);
+    } else {
+      response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+    }
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error('API Error:', err);
+    return { status: false, message: err.message };
+  }
+}
 
-        tbody.innerHTML = '';
+// ============================================================
+// NAVIGATION
+// ============================================================
+const pageMeta = {
+  dashboard: { title: 'Dashboard',       sub: 'Overview & Analytics' },
+  pipeline:  { title: 'Sales Pipeline',  sub: 'Track every lead through your sales process' },
+  leads:     { title: 'Active Leads',    sub: 'All leads in your pipeline' },
+  addlead:   { title: 'Add New Lead',    sub: 'Capture a new lead' },
+  today:     { title: "Today's Calling", sub: 'Follow ups scheduled for today' },
+  calllog:   { title: 'Log a Call',      sub: 'Record call details' },
+};
 
-        for(let i = 1; i < data.length; i++){
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-          let row = `
-            <tr>
-              <td>${data[i][1]}</td>
-              <td>${data[i][2]}</td>
-              <td>${data[i][4]}</td>
-              <td>${data[i][6]}</td>
-              <td>${data[i][5]}</td>
-              <td>${data[i][9]}</td>
-              <td>${data[i][13]}</td>
-            </tr>
-          `;
+  document.getElementById('page-' + id).classList.add('active');
+  const meta = pageMeta[id] || {};
+  document.getElementById('pageTitle').textContent = meta.title || id;
+  document.getElementById('pageSub').textContent   = meta.sub   || '';
 
-          tbody.innerHTML += row;
+  // Load data for each page
+  if (id === 'dashboard')  loadDashboard();
+  if (id === 'pipeline')   loadPipeline();
+  if (id === 'leads')      loadLeads();
+  if (id === 'today')      loadToday();
+  if (id === 'addlead')    setDefaultDate();
+}
 
-        }
+function setDefaultDate() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('ld-date').value = today;
+}
 
-      })
-      .getActiveLeads();
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDashboard() {
+  const res = await apiCall('getDashboard');
+  if (!res.status) { showToast('Dashboard load failed', 'error'); return; }
 
+  const s = res.stats;
+  document.getElementById('statActive').textContent   = s.totalActive;
+  document.getElementById('statToday').textContent    = s.todayFollowUps;
+  document.getElementById('statQual').textContent     = s.qualifiedCount;
+  document.getElementById('statOverdue').textContent  = s.overdueFollowUps;
+  document.getElementById('statTodayCalls').textContent = s.todayCalls;
+  document.getElementById('statConverted').textContent  = s.convertedCount;
+
+  // Badge
+  if (s.todayFollowUps > 0) {
+    document.getElementById('todayBadge').style.display = 'inline';
+    document.getElementById('todayBadge').textContent = s.todayFollowUps;
   }
 
-  // Submit Form
+  renderSourceBreakdown(res.sourceBreakdown || {});
+  renderStageDistribution(res.salesPipelineStages || {});
+}
 
-  document
-    .getElementById('leadForm')
-    .addEventListener('submit', function(e){
+const COLORS = ['#4f7ef8','#7c5cfc','#22c55e','#f59e0b','#ef4444','#06b6d4','#a855f7','#f97316','#14b8a6','#ec4899'];
 
-      e.preventDefault();
+function renderSourceBreakdown(srcMap) {
+  const entries = Object.entries(srcMap).sort((a,b) => b[1]-a[1]);
+  const total   = entries.reduce((s,[,v]) => s+v, 0) || 1;
+  const el      = document.getElementById('sourceList');
 
-      document.getElementById('loading').style.display = 'block';
+  if (!entries.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;">No data yet</div>'; return; }
 
-      const data = {
+  el.innerHTML = entries.map(([src, cnt], i) => `
+    <div class="source-row">
+      <div class="source-dot" style="background:${COLORS[i%COLORS.length]}"></div>
+      <div class="source-name">${src}</div>
+      <div class="source-bar-wrap">
+        <div class="source-bar" style="width:${Math.round(cnt/total*100)}%;background:${COLORS[i%COLORS.length]}"></div>
+      </div>
+      <div class="source-cnt">${cnt}</div>
+    </div>
+  `).join('');
+}
 
-        date: document.getElementById('date').value,
+function renderStageDistribution(stageMap) {
+  const entries = Object.entries(stageMap).sort((a,b) => b[1]-a[1]);
+  const total   = entries.reduce((s,[,v]) => s+v, 0) || 1;
+  const el      = document.getElementById('stageDistribution');
 
-        inquirySource: document.getElementById('inquirySource').value,
+  if (!entries.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;">No data yet</div>'; return; }
 
-        name: document.getElementById('name').value,
+  el.innerHTML = entries.map(([stage, cnt], i) => `
+    <div class="aging-row">
+      <div class="aging-label">${stage}</div>
+      <div class="aging-bar-wrap">
+        <div class="aging-bar" style="width:${Math.round(cnt/total*100)}%;background:${COLORS[i%COLORS.length]}"></div>
+      </div>
+      <div class="aging-val" style="color:${COLORS[i%COLORS.length]}">${cnt}</div>
+    </div>
+  `).join('');
+}
 
-        location: document.getElementById('location').value,
+// ============================================================
+// SALES PIPELINE
+// ============================================================
+const STAGE_COLORS = [
+  '#4f7ef8','#7c5cfc','#06b6d4','#f59e0b',
+  '#a855f7','#7c5cfc','#ef4444','#f97316',
+  '#14b8a6','#ec4899','#22c55e'
+];
 
-        phone: document.getElementById('phone').value,
+async function loadPipeline() {
+  document.getElementById('pipelineBoard').innerHTML =
+    '<div style="color:var(--muted);padding:40px 20px;font-size:13px;"><span class="spinner"></span> Loading...</div>';
 
-        email: document.getElementById('email').value,
+  const res = await apiCall('getSalesPipeline');
+  if (!res.status) { showToast('Pipeline load failed', 'error'); return; }
 
-        area: document.getElementById('area').value,
+  pipelineData   = res.pipeline;
+  pipelineStages = res.stages;
+  renderPipeline();
+}
 
-        requirement: document.getElementById('requirement').value,
+function renderPipeline() {
+  const board = document.getElementById('pipelineBoard');
+  board.innerHTML = pipelineStages.map((stage, i) => {
+    const leads = pipelineData[stage] || [];
+    return `
+      <div class="stage-col">
+        <div class="stage-header" style="color:${STAGE_COLORS[i]};border-color:${STAGE_COLORS[i]}">
+          <span>${i+1}. ${stage}</span>
+          <span class="stage-count">${leads.length}</span>
+        </div>
+        <div>
+          ${leads.length === 0
+            ? '<div class="no-leads">No leads here</div>'
+            : leads.map(l => `
+              <div class="lead-card" onclick="openStageModal('${l.uniqueCode}','${stage}')">
+                <div class="lead-card-name">${l.name}</div>
+                <div class="lead-card-phone">📞 ${l.phone}</div>
+                ${l.location ? `<div class="lead-card-loc">📍 ${l.location}</div>` : ''}
+                ${l.requirement ? `<div class="lead-card-req">📋 ${l.requirement}</div>` : ''}
+                ${l.dealValue ? `<div style="font-size:11px;color:var(--green);margin-top:4px;font-weight:600">₹${l.dealValue}</div>` : ''}
+              </div>
+            `).join('')
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+}
 
-        qualified: document.getElementById('qualified').value,
+// ============================================================
+// ACTIVE LEADS TABLE
+// ============================================================
+async function loadLeads() {
+  document.getElementById('leadsTableBody').innerHTML =
+    '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--muted)"><span class="spinner"></span></td></tr>';
 
-        lastRemarks: document.getElementById('lastRemarks').value,
+  const res = await apiCall('getActiveLeads');
+  if (!res.status) { showToast('Failed to load leads', 'error'); return; }
 
-        followUpdate: document.getElementById('followUpdate').value
+  allLeads = res.data || [];
+  renderLeadsTable(allLeads);
+}
 
-      };
+function renderLeadsTable(leads) {
+  const tbody = document.getElementById('leadsTableBody');
+  if (!leads.length) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--muted)">No leads found</td></tr>';
+    return;
+  }
+  const today = new Date(); today.setHours(0,0,0,0);
 
-      google.script.run
-        .withSuccessHandler(function(res){
+  tbody.innerHTML = leads.map(l => {
+    const followDate = l['Follow Update'] ? new Date(l['Follow Update']) : null;
+    if (followDate) followDate.setHours(0,0,0,0);
+    const isOverdue = followDate && followDate < today;
+    const isToday   = followDate && followDate.getTime() === today.getTime();
 
-          alert(res.message);
+    const statusClass = isOverdue ? 'badge-overdue' : isToday ? 'badge-pending' : 'badge-active';
+    const statusText  = l['Status'] || 'Active';
 
-          document.getElementById('loading').style.display = 'none';
+    return `
+      <tr>
+        <td><code style="font-size:11px;color:var(--accent)">${l['Unique Code']||''}</code></td>
+        <td>${formatDate(l['Date'])}</td>
+        <td style="font-weight:600">${l['Name']||''}</td>
+        <td>${l['Phone No']||''}</td>
+        <td>${l['Location']||''}</td>
+        <td><span style="font-size:11px;color:var(--muted)">${l['Inquiry Source']||''}</span></td>
+        <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l['Requirement']||''}</td>
+        <td style="color:${isOverdue?'var(--red)':isToday?'var(--orange)':'var(--muted)'}">${formatDate(l['Follow Update'])}</td>
+        <td><span class="badge-status ${statusClass}">${statusText}</span></td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="openStageModal('${l['Unique Code']}','')">Stage</button>
+          <button class="btn btn-ghost btn-sm" onclick="prefillCallLog('${l['Unique Code']}')">Log Call</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
 
-          document.getElementById('leadForm').reset();
+function filterLeads() {
+  const q     = document.getElementById('searchBox').value.toLowerCase();
+  const st    = document.getElementById('filterStatus').value.toLowerCase();
+  const filtered = allLeads.filter(l => {
+    const matchQ  = !q ||
+      (l['Name']     || '').toLowerCase().includes(q) ||
+      (l['Phone No'] || '').toLowerCase().includes(q) ||
+      (l['Location'] || '').toLowerCase().includes(q);
+    const matchSt = !st || (l['Status'] || '').toLowerCase().includes(st);
+    return matchQ && matchSt;
+  });
+  renderLeadsTable(filtered);
+}
 
-          loadLeads();
+// ============================================================
+// TODAY CALLING
+// ============================================================
+async function loadToday() {
+  const d = new Date();
+  document.getElementById('todayDate').textContent =
+    d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 
-        })
-        .addLead(data);
+  const res = await apiCall('getTodayCalling');
+  if (!res.status) { showToast('Failed to load', 'error'); return; }
 
-    });
+  const tbody = document.getElementById('todayTableBody');
+  const data  = res.data || [];
 
-  // Initial Load
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">No follow ups scheduled for today 🎉</td></tr>';
+    return;
+  }
 
-  loadLeads();
+  tbody.innerHTML = data.map(l => `
+    <tr>
+      <td><code style="font-size:11px;color:var(--accent)">${l.uniqueCode}</code></td>
+      <td style="font-weight:600">${l.name}</td>
+      <td>${l.phone}</td>
+      <td>${formatDate(l.followUpTime)}</td>
+      <td style="max-width:200px">${l.lastRemarks||''}</td>
+      <td><span class="badge-status badge-pending">${l.status}</span></td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="prefillCallLog('${l.uniqueCode}')">📞 Log Call</button>
+      </td>
+    </tr>
+  `).join('');
+}
 
+// ============================================================
+// ADD LEAD
+// ============================================================
+async function submitLead(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitLeadBtn');
+  btn.innerHTML = '<span class="spinner"></span> Saving...';
+  btn.disabled = true;
+
+  const data = {
+    date:          document.getElementById('ld-date').value,
+    inquirySource: document.getElementById('ld-source').value,
+    name:          document.getElementById('ld-name').value,
+    location:      document.getElementById('ld-location').value,
+    phone:         document.getElementById('ld-phone').value,
+    email:         document.getElementById('ld-email').value,
+    area:          document.getElementById('ld-area').value,
+    requirement:   document.getElementById('ld-requirement').value,
+    qualified:     document.getElementById('ld-qualified').value,
+    lastRemarks:   document.getElementById('ld-remarks').value,
+    followUpdate:  document.getElementById('ld-followup').value,
+  };
+
+  const res = await apiCall('addLead', data);
+  btn.innerHTML = 'Save Lead';
+  btn.disabled  = false;
+
+  if (res.status) {
+    showToast(`✅ ${res.message} | Code: ${res.uniqueCode}`, 'success');
+    document.getElementById('leadForm').reset();
+  } else {
+    showToast('❌ ' + res.message, 'error');
+  }
+}
+
+// ============================================================
+// CALL LOG
+// ============================================================
+function prefillCallLog(code) {
+  document.getElementById('cl-code').value = code;
+  showPage('calllog');
+}
+
+async function submitCallLog(e) {
+  e.preventDefault();
+  const data = {
+    uniqueCode:  document.getElementById('cl-code').value,
+    callStatus:  document.getElementById('cl-status').value,
+    callNotes:   document.getElementById('cl-notes').value,
+    nextFollowUp: document.getElementById('cl-followup').value,
+    executive:   document.getElementById('cl-exec').value,
+  };
+
+  const res = await apiCall('addCallLog', data);
+  if (res.status) {
+    showToast('✅ Call log saved!', 'success');
+    document.getElementById('callLogForm').reset();
+  } else {
+    showToast('❌ ' + res.message, 'error');
+  }
+}
+
+// ============================================================
+// STAGE MODAL
+// ============================================================
+function openStageModal(code, currentStage) {
+  document.getElementById('sm-code').value  = code;
+  document.getElementById('sm-stage').value = currentStage || 'New Lead';
+  document.getElementById('sm-remarks').value = '';
+  document.getElementById('sm-deal').value  = '';
+  document.getElementById('sm-close').value = '';
+  document.getElementById('stageModal').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+async function saveSalesStage() {
+  const data = {
+    uniqueCode:  document.getElementById('sm-code').value,
+    stage:       document.getElementById('sm-stage').value,
+    remarks:     document.getElementById('sm-remarks').value,
+    dealValue:   document.getElementById('sm-deal').value,
+    closingDate: document.getElementById('sm-close').value,
+    status:      'In Progress',
+  };
+
+  const res = await apiCall('updateSalesStage', data);
+  if (res.status) {
+    showToast('✅ Stage updated!', 'success');
+    closeModal('stageModal');
+    loadPipeline();
+  } else {
+    showToast('❌ ' + res.message, 'error');
+  }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function formatDate(val) {
+  if (!val) return '—';
+  const d = new Date(val);
+  if (isNaN(d)) return val;
+  return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function showToast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 3500);
+}
+
+function refreshAll() {
+  const active = document.querySelector('.page.active');
+  if (active) {
+    const id = active.id.replace('page-','');
+    showPage(id);
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  setDefaultDate();
+  loadDashboard();
+
+  // Close modal on overlay click
+  document.getElementById('stageModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('stageModal');
+  });
+});
 </script>
 
 </body>
